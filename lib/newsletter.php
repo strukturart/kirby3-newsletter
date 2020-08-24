@@ -55,12 +55,9 @@ class Newsletter
     public static function getSubscribers()
     {
         $to = [];
-
-        // Set the uri of your subscriber blueprint in the page function
-        foreach (kirby()->page('abonnes')->subscriber()->toStructure() as $e) {
-            $to[] = $e->email()->toString();
-        }
-
+        //get user list filtered by role
+        $users = $kirby->users()->filterBy('role','test');
+		$to = $users->pluck('email');
         return $to;
     }
 
