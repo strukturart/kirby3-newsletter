@@ -29,10 +29,16 @@ class Newsletter
                         'attachments' => $files
                     ]);
                 };
+
+              
+
+
                 $log = $email->isSent() ? 'Mail has been sent !' : 'Mais has not been sent';
+
+                
             } catch (Exception $error) {
                 $log = $error->getMessage();
-                $status = 400;
+                $status = 400;    
             }
         } else {
             $log = 'There is no subscriber to send our newsletter to !';
@@ -48,17 +54,27 @@ class Newsletter
             'attachments' => $files,
             'status' => $status
         ];
+        //change status if not a test
+        if(!$test):
+            $page->changeStatus('listed');
+        endif;
 
         return $result;
     }
 
     public static function getSubscribers()
     {
-        $to = [];
-        //get user list filtered by role
-        $users = $kirby->users()->filterBy('role','test');
-		$to = $users->pluck('email');
+        //get subscribers from users list
+        //filtered by role
+        //get role from settings
+        $to = [];   
+        $list = kirby()->option('scardoso.newsletter.rcv_list');     
+        $users = kirby()->users()->filterBy('role',$list)->toArray();   
+        foreach ($users as $user):
+           array_push($to,$user['email']);
+        endforeach;
         return $to;
+
     }
 
     public static function getFiles($page)
@@ -71,4 +87,6 @@ class Newsletter
 
         return $files;
     }
+
+ 
 }
